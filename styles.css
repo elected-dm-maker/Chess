@@ -1,0 +1,303 @@
+body {
+    background: #1a1a1a;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.game-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+}
+
+.board-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    border: 5px solid #333;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.cell {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 45px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.white { background: #eeeed2; color: #444; }
+.black { background: #2a4e27; color: #444; }
+.selected { background: #f7f769 !important; }
+
+/* ПОДСКАЗКИ: ТОЧКИ */
+.cell.possible-move::after {
+    content: "";
+    width: 16px;
+    height: 16px;
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 50%;
+    position: absolute;
+    z-index: 2;
+}
+
+/* ПОДСКАЗКИ: КОЛЬЦО (если на клетке враг) */
+.cell.possible-move.has-enemy::after {
+    width: 52px;
+    height: 52px;
+    background: transparent;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+}
+
+.captured-zone {
+    width: 50px;
+    min-height: 480px;
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    font-size: 30px;
+    border-radius: 10px;
+}
+
+.reset-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    background: #769656;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.reset-btn:hover { background: #92b470; transform: scale(1.05); }
+.notification {
+    position: fixed;
+    top: 30px; /* Отступ сверху */
+    left: 50%; /* Сдвигаем на 50% ширины экрана */
+    transform: translate(-50%, -20px); /* Центрируем по оси X и немного приподнимаем для анимации */
+    background: #ff4d4d;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-family: sans-serif;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 9999; /* Чтобы было поверх всего */
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Плавная пружинистая анимация */
+    pointer-events: none;
+    white-space: nowrap; /* Чтобы текст не переносился */
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translate(-50%, 0); /* Возвращаем в центр экрана */
+}
+/* Затемнение фона */
+/* 1. ЗАМЕНА ВСЕГО БЛОКА ОВЕРЛЕЯ (ФОН) */
+.overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Глубокое затемнение */
+    display: none; /* Переключается через JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(10px); /* Сильное размытие заднего плана */
+    transition: all 0.5s ease;
+}
+
+/* 2. МОДАЛЬНОЕ ОКНО */
+.modal {
+    background: linear-gradient(145deg, #2c3e50, #1a252f);
+    padding: 50px 80px;
+    border-radius: 30px;
+    text-align: center;
+    border: 4px solid #769656;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 
+                0 0 20px rgba(118, 150, 86, 0.3);
+    animation: modalBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 3. ТЕКСТ ПОБЕДИТЕЛЯ (ЗОЛОТОЙ ГРАДИЕНТ) */
+#winner-text {
+    font-size: 64px;
+    font-weight: 900;
+    margin: 0 0 10px 0;
+    background: linear-gradient(to bottom, #f7f769 20%, #e2e25d 100%);
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    text-transform: uppercase;
+}
+
+.modal p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 22px;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+
+/* 4. НОВАЯ КРАСИВАЯ КНОПКА */
+.reset-btn-final {
+    padding: 18px 45px;
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: white;
+    background: linear-gradient(45deg, #769656, #92b470);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+    animation: buttonPulse 2s infinite; /* Пульсация */
+}
+
+.reset-btn-final:hover {
+    transform: scale(1.1) translateY(-5px);
+    background: linear-gradient(45deg, #8ab165, #a3c97d);
+    box-shadow: 0 15px 35px rgba(118, 150, 86, 0.5);
+}
+
+/* --- АНИМАЦИИ --- */
+
+/* Плавное вылетание окна */
+@keyframes modalBounce {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Пульсация тени вокруг кнопки */
+@keyframes buttonPulse {
+    0% { box-shadow: 0 0 0 0 rgba(118, 150, 86, 0.6); }
+    70% { box-shadow: 0 0 0 25px rgba(118, 150, 86, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(118, 150, 86, 0); }
+}
+/* Стили для стартового экрана (Лобби) */
+#lobby {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background: radial-gradient(circle, #2c3e50 0%, #000000 100%);
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 9999;
+}
+
+.lobby-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    padding: 50px;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    text-align: center;
+    width: 400px;
+}
+
+.lobby-card h1 {
+    font-size: 32px;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    color: #f7f769;
+}
+
+.lobby-card p {
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 30px;
+}
+
+/* Красивое поле ввода */
+#roomInput {
+    width: 80%;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid #444;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    outline: none;
+    transition: 0.3s;
+    margin-bottom: 25px;
+}
+
+#roomInput:focus {
+    border-color: #769656;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 15px rgba(118, 150, 86, 0.3);
+}
+
+/* Контейнер кнопок с отступами */
+.lobby-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Расстояние между кнопками */
+}
+
+.lobby-controls button {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    transition: 0.3s;
+}
+
+#hostBtn {
+    background: #769656;
+    color: white;
+}
+
+#joinBtn {
+    background: #444;
+    color: white;
+}
+
+#hostBtn:hover { background: #92b470; transform: translateY(-2px); }
+#joinBtn:hover { background: #555; transform: translateY(-2px); }
+
+/* Анимация появления */
+.lobby-card {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Переворот всей доски */
+.board.flipped {
+    transform: rotate(180deg);
+}
+
+/* Разворот фигур обратно, чтобы они не были вверх ногами */
+.board.flipped .cell {
+    transform: rotate(180deg);
+}

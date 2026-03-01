@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Master Online</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Уведомление по центру -->
+    <div id="notification-container" class="notification"></div>
+
+    <!-- Окно финала (победа/поражение) -->
+    <div id="game-over-overlay" class="overlay">
+        <div class="modal">
+            <h1 id="winner-text">Победа!</h1>
+            <p>Игра окончена</p>
+            <button onclick="location.reload()" class="reset-btn-final">В главное меню</button>
+        </div>
+    </div>
+
+    <!-- Стартовое меню (Лобби) -->
+    <div id="lobby">
+        <div class="lobby-card">
+            <h1>ШАХМАТЫ</h1>
+            <p>Создайте комнату и передайте код другу</p>
+            <input type="text" id="roomInput" placeholder="Введите код комнаты">
+            <div class="lobby-controls">
+                <button id="hostBtn" class="reset-btn-final">Создать хост</button>
+                <button id="joinBtn" class="reset-btn-final" style="background: #555;">Войти по коду</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной игровой экран (скрыт до начала игры) -->
+    <div id="game-container" class="game-container" style="display: none;">
+        <!-- Слева: съеденные черные -->
+        <div id="captured-black" class="captured-zone"></div>
+
+        <div class="board-wrapper">
+            <h2 id="status">Ход: Белые</h2>
+            <div id="chess-board" class="board"></div>
+            <button onclick="location.reload()" class="reset-btn">
+                <span>↻</span> Покинуть игру
+            </button>
+        </div>
+
+        <!-- Справа: съеденные белые -->
+        <div id="captured-white" class="captured-zone"></div>
+    </div>
+
+    <!-- ПОДКЛЮЧЕНИЕ СКРИПТОВ -->
+    <!-- 1. Библиотека Socket.io (автоматически раздается сервером Node.js) -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- 2. Твой основной скрипт -->
+    <script src="script.js"></script>
+</body>
+</html>
